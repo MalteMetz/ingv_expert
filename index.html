@@ -1,0 +1,627 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>INGV Expert talk</title>
+
+    <link rel="stylesheet" href="reveal/dist/reset.css">
+    <link rel="stylesheet" href="reveal/dist/reveal.css">
+    <link rel="stylesheet" href="theme/pyrocko.css" id="theme">
+    <!--<link rel="stylesheet" href="dist/theme/moon.css" id="theme">-->
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="theme/highlight/gruvbox-light.css" id="highlight-theme">
+</head>
+<style>
+    .annot {
+        font-style: italic;
+        color: #ce5c00;
+        padding-left: 1em;
+    }
+
+    .links {
+        border-top: 1px solid #665544;
+        padding-top: 0.5em;
+        font-size: 70%;
+        color: #aaaa88;
+        margin-top: 2em;
+        width: 100%;
+    }
+
+    .links li {
+        list-style-type: none;
+        display: inline-block;
+        margin-right: 1em;
+    }
+
+    .links a {
+        color: #aaaa88;
+    }
+
+    .editor {
+        margin: 1em;
+        border: 1px solid #665544;
+        border-radius: 0.2em;
+        background-color: #333322;
+    }
+
+    code.inline {
+        font-size: 80%;
+        background-color: #444435;
+        color: #ccccaa;
+    }
+
+    em {
+        /*color: #ccaa33;*/
+    }
+
+    .small {
+        font-size: 75%;
+    }
+
+    div.fbox {
+        display: flex;
+        vertical-align: top;
+        justify-content: space-evenly;
+    }
+
+    div.fitem {
+        flex-grow: 1;
+    }
+
+    div.left {
+      left:-8.33%;
+      text-align: center;
+      float: left;
+      width:50%;
+      z-index:-10;
+    }
+
+    div.right {
+      left:31.25%;
+      top: 75px;
+      float: right;
+      text-align: center;
+      z-index:-10;
+      width:50%;
+    }
+    .topimg {
+        margin:  2em;
+        margin-left: 2em;
+        margin-right: 2em;
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+        vertical-align: middle;
+        height:  1.5em;
+    }
+</style>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <section>
+                    <h5>Early-Warning and Rapid ImpaCt Assessment with  real-time GNSS in the Mediterranean <br>WP2 - Fast source inversion</h5>
+                    <br>
+                    <p style="font-size:50%">Malte Metz<sup>1, 2</sup>, Torsten Dahm<sup>1, 2</sup>, Simone Cesca<sup>1</sup>, Rongjiang Wang<sup>2</sup>, Matthias Ohrnberger<sup>1</sup>, Lukas Lehmann<sup>1</sup>, Sebastian Heimann<sup>1</sup>, Marius Isken<sup>2</sup>, et al.</p>
+                    <p style="font-size: 50%; font-style: italic;"><sup>1</sup>University of Potsdam, <sup>2</sup>GFZ Potsdam</p>
+
+
+                <img src="./figures/logo/UP.jpg" style="height: 2.5em; margin: 0.5em;">
+                <img src="./figures/logo/GFZ.png" style="height: 2.5em; margin: 0.5em;">
+                <img src="./figures/logo/bmbf.jpg" style="height: 2.5em; margin: 0.5em;">
+
+                </section>
+            </section>
+
+<!-- MOTIVATION -->
+            <section>
+                <h4>Challenges in fast rupture characterization</h4>
+
+                <ul style="margin-top: 1em;">
+                    <li>Complex rupture characterizations <p><span class="fragment fade-in-then-out annot"> ➞ kinematic rupture effects</span></p></li>
+                    <li>Uncertainties <p><span class="fragment fade-in-then-out annot"> ➞  reliability</span></p></li>
+                </ul>
+            </section>
+
+            <section>
+                <h6>Why do we need complex rupture characterizations?</h6>
+
+                <img src="./figures/motivation/displacement_comparison.png" style="height: 7.5em">
+
+                <p style="font-size: small; text-align: right;">static ground displacement (Pyrocko and Wang (2003, 2005, 2006))</p>
+
+                <p><span class="fragment fade-in-then-out annot"> ➞ also origin estimate</span></p>
+
+               <aside class="notes">
+                    Strong effects for TEW etc depending on the source models
+                    Dependency on source model can lead to errors in tsunami potential
+               </aside> 
+            </section>
+
+            <section>
+                <h6>Why do we need uncertainties?</h6>
+
+                <img src="./figures/motivation/histogram.dip.pdr.png" style="height: 10em">
+
+                <p><span class="fragment fade-in-then-out annot"> ➞ account for complex PDF</span></p>
+                <!-- Ambiguities -->
+            </section>
+
+
+<!-- OUTLINE -->
+            <section>
+                <h6>Structure of the talk</h6>
+
+                <ul>
+                    <li>Source estimation strategy</li>
+                    <li>Source models <p><span class="fragment fade-in-then-out annot"> ➞ majorly used within Pyrocko/Grond</span></p></li>
+                    <li>Application to Norcia 2016 earthquake</li>
+                    <li>User interface <p><span class="fragment fade-in-then-out annot"> ➞ Configuration</span></p></li>
+                </ul>
+            </section>
+
+
+<!-- SCETCH SOURCE ESTIMATE APPROACH -->
+            <section>
+                <h6>Source estimation strategy</h6>
+
+                <img src="./figures/methods/fast_estimate_essentials.png" style="width: 100%; height: auto;">
+            </section>
+
+
+            <section>
+                <h6>Source estimation strategy</h6>
+
+                <ol>
+                    <li>Point (DC) Source  <img src="./figures/methods/source-doublecouple.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></li>
+                    <li>Rectangular source  <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"> <p style="font-size: smaller; color: darkgray;">Heimann, 2011</p></li>
+                    <li value="2">Pseudo dynamic rupture  <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"> <p style="font-size: smaller; color: darkgray;">Dahm et al., 2021</p></li>
+                    <li>Iterative Deconvolution and Stacking - IDS <p style="font-size: smaller; color: darkgray;">Zhang et al., 2014, Diao et al., 2016, Zheng et al., 2020</p></li>
+                </ol>
+            </section>
+
+
+<!-- SOURCE MODELS INTRO -->
+
+<!-- DC SOURCE -->
+            <section>
+                <h6>Point (DC) Source  <img src="./figures/methods/source-doublecouple.svg" class="topimg"></h6>
+
+                <ul>
+                    <li>Earthquake source = point</li>
+                    <li>12 free parameters <p><span class="fragment fade-in-then-out annot"> ➞ orientation partially constrained from prior</span></p></li>
+                    <li>robust <p><span class="fragment fade-in-then-out annot"> ➞ derived from low frequency waveforms</span></p></li>
+                    <li>fast</li>
+                    <li>PDF transfer and exploration <p><span class="fragment fade-in-then-out annot"> ➞ dependency on previously generated PDF</span></p></li>
+                </ul>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Point (DC) Source  <img src="./figures/methods/source-doublecouple.svg" class="topimg"> - Norcia 2016 <img src="./figures/results/mt_gcmt.png" class="topimg"></h6>
+
+                <img src="./figures/results/mt_km100.png" style="height: 3em; margin-right: 0em; vertical-align: middle;">
+<!--                 <img src="./figures/results/mt_km100_waveform.example.png" style="height: 4em; margin-right: 0.5em; vertical-align: middle;"> -->
+                <br>
+
+                <img src="./figures/results/mt_km100_histogram.magnitude.png" style="height: 4em;  vertical-align: middle;">
+
+                <p><em style="color: darkgrey; font-size: smaller;">13 stations, 50-100 km epicentral distance</em></p>
+            </section>
+
+<!--                 <img src="./figures/results/mt_km100_waveform.example.bad.png" style="height: 4em; margin-right: 0.5em; vertical-align: middle;"> -->
+
+            <section data-auto-animate>
+                <h6>Point (DC) Source  <img src="./figures/methods/source-doublecouple.svg" class="topimg"> - Norcia 2016 <img src="./figures/results/mt_gcmt.png" class="topimg"></h6>
+
+                <img src="./figures/results/mt_km100.png" style="height: 3em; margin-right: 3.5em; vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km200.png" style="height: 3em; margin-right: 0em; vertical-align: middle;">
+
+<!--                 <img src="./figures/results/mt_km200_waveform.example.png" style="height: 4em; margin-right: 0.5em; vertical-align: middle;"> -->
+                <br>
+
+                <img src="./figures/results/mt_km100_histogram.magnitude.png" style="height: 4em;  vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km200_histogram.magnitude.png" style="height: 4em;  vertical-align: middle;">
+
+                <p><em style="color: darkgrey; font-size: smaller;">13 stations, 100-200 km epicentral distance</em></p>
+            </section>
+
+
+            <section data-auto-animate>
+                <h6>Point (DC) Source  <img src="./figures/methods/source-doublecouple.svg" class="topimg"> - Norcia 2016 <img src="./figures/results/mt_gcmt.png" class="topimg"></h6>
+
+                <img src="./figures/results/mt_km100.png" style="height: 3em; margin-right: 3.5em; vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km200.png" style="height: 3em; margin-right: 3.5em; vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km300.png" style="height: 3em; margin-right: 0em; vertical-align: middle;">
+
+<!--                 <img src="./figures/results/mt_km300_waveform.example.png" style="height: 4em; margin-right: 0.5em; vertical-align: middle;"> -->
+                <br>
+
+                <img src="./figures/results/mt_km100_histogram.magnitude.png" style="height: 4em;  vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km200_histogram.magnitude.png" style="height: 4em;  vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/mt_km300_histogram.magnitude.png" style="height: 4em;  vertical-align: middle;">
+
+                <p><em style="color: darkgrey; font-size: smaller;">40 stations, 100-300 km epicentral distance</em></p>
+
+                <p><span class="fragment fade-in-then-out annot"> ➞ narrower PDFs </span></p>
+            </section>
+
+
+
+<!-- RECTANGULAR SOURCE -->
+            <section>
+                <h6>Rectangular Source    <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <ul>
+                    <li>Kinematic finite fault <p><span class="fragment fade-in-then-out annot"> ➞ homogeneous slip, extent, origin</span></p></li>
+                    <li>13 parameters <em style="color: darkgrey;">(fixed based on DC Source)</em><p><span class="fragment fade-in-then-out annot"> ➞ 5 free parameters (origin, extent, slip)</span></p></li>
+                    <li>Fast <p><span class="fragment fade-in-then-out annot"> ➞ test several models per second</span></p></li>
+                </ul>
+
+               <aside class="notes">
+                    Test both nodal planes of best DC model
+               </aside> 
+            </section>
+
+            <section data-auto-animate>
+                <h6>Rectangular Source  <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/rs_km100.png" style="height: 7.5em; margin-right: 0.0em; vertical-align: middle">
+<!--                 <img src="./figures/results/rs_km100_waveform.example.png" style="height: 5em; vertical-align: middle"> -->
+
+                <p><em style="color: darkgrey; font-size: smaller;">60 stations, 0-100 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Rectangular Source    <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/rs_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/rs_km200.png" style="height: 7.5em; margin-right: 0.0em; vertical-align: middle; position: relative; z-index: -1;">
+<!--                 <img src="./figures/results/rs_km200_waveform.example.png" style="height: 5em; vertical-align: middle">
+ -->
+                <p><em style="color: darkgrey; font-size: smaller;">76 stations, 0-200 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Rectangular Source    <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/rs_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6;">
+                <img src="./figures/results/rs_km200.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6; position: relative; z-index: -1">
+                <img src="./figures/results/rs_km300.png" style="height: 7.5em; margin-right: 0.0em; vertical-align: middle; position: relative; z-index: -2">
+<!--                 <img src="./figures/results/rs_km300_waveform.example.png" style="height: 5em; vertical-align: middle">
+ -->
+                <p><em style="color: darkgrey; font-size: smaller;">98 stations, 0-300 km epicentral distance</em></p>
+            </section>
+
+
+            <section data-auto-animate>
+                <h6>Rectangular Source    <img src="./figures/methods/source-rectangular.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/rs_km300.png" style="height: 10em; margin-right: 0.5em; vertical-align: middle">
+                <img src="./figures/resources/pizzi_fig3a.png" style="height: 10em; vertical-align: middle">
+
+                <p style="text-align: right;"><em style="color: darkgrey; font-size: x-large;">Pizzi et al., 2017  </em></p>
+
+
+               <aside class="notes">
+                    Origin similar to Scognamiglio et al., 2018
+               </aside> 
+            </section>
+
+
+
+<!-- PSEUDO DYNAMIC RUPTURE -->
+            <section>
+                <h6>Pseudo dynamic rupture    <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <ul>
+                    <li>Dynamic finite fault <p><span class="fragment fade-in-then-out annot"> ➞ hetereogeneous slip, extent, origin</span></p></li>
+                    <li>Explains rupture physics <p><span class="fragment fade-in-then-out annot"> ➞ stress drop</span></p></li>
+                    <li>13 parameters <em style="color: darkgrey;">(fixed based on DC Source)</em><p><span class="fragment fade-in-then-out annot"> ➞ 5 free parameters (origin, extent, stress drop)</span></p></li>
+                </ul>
+
+               <aside class="notes">
+                    Test both nodal planes of best DC model
+               </aside> 
+            </section>
+
+            <section data-auto-animate>
+                <h6>Pseudo dynamic rupture    <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/pdr_km100.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle">
+<!--                 <img src="./figures/results/pdr_km100_waveform.example.png" style="height: 5em; vertical-align: middle">
+ -->
+                <p><em style="color: darkgrey; font-size: smaller;">60 stations, 0-100 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Pseudo dynamic rupture    <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/pdr_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6">
+                <img src="./figures/results/pdr_km200.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle; position: relative; z-index: -1">
+<!--                 <img src="./figures/results/pdr_km200_waveform.example.png" style="height: 5em; vertical-align: middle"> -->
+
+                <p><em style="color: darkgrey; font-size: smaller;">78 stations, 0-200 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Pseudo dynamic rupture    <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/pdr_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6">
+                <img src="./figures/results/pdr_km200.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6; position: relative; z-index: -1">
+                <img src="./figures/results/pdr_km300.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle; position: relative; z-index: -2">
+<!--                 <img src="./figures/results/pdr_km300_waveform.example.png" style="height: 5em; vertical-align: middle"> -->
+
+                <p><em style="color: darkgrey; font-size: smaller;">101 stations, 0-300 km epicentral distance</em></p>
+            </section>
+
+
+            <section data-auto-animate>
+                <h6>Pseudo dynamic rupture    <img src="./figures/methods/source-pdr.svg" style="margin: 0.25em; vertical-align: middle; height: 1.5em;"></h6>
+
+                <img src="./figures/results/pdr_km300.png" style="height: 10em; margin-right: 0.5em; vertical-align: middle">
+                <img src="./figures/resources/pizzi_fig3a.png" style="height: 10em; vertical-align: middle">
+
+                <p style="text-align: right;"><em style="color: darkgrey; font-size: x-large;">Pizzi et al., 2017  </em></p>
+
+
+               <aside class="notes">
+                    Origin similar to Scognamiglio et al., 2018
+               </aside> 
+            </section>
+
+
+
+<!-- ITERATIVE DECONVOLUTION AND STACKING -->
+            <section>
+                <h6>Iterative Deconvolution and Stacking - IDS</h6>
+
+                <ul>
+                    <li>Kinematic finite fault <p><span class="fragment fade-in-then-out annot"> ➞ hetereogeneous time dependent slip</span></p></li>
+                    <li>No. of parameters based on rupture extent<em style="color: darkgrey;">(fixed based on DC and PDR Source)</em><p><span class="fragment fade-in-then-out annot"> ➞ slip on each fault patch is free</span></p></li>
+                    <li>Fast <p><span class="fragment fade-in-then-out annot"> ➞ few minutes max. for a run</span></p></li>
+                </ul>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Iterative Deconvolution and Stacking - IDS</h6>
+
+                <img src="./figures/results/ids_km100.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle">
+<!--                 <img src="./figures/results/ids_km100_waveform.example.png" style="height: 6em; vertical-align: middle"> -->
+
+                <p><em style="color: darkgrey; font-size: smaller;">30 stations, 0-100 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Iterative Deconvolution and Stacking - IDS</h6>
+
+                <img src="./figures/results/ids_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6">
+                <img src="./figures/results/ids_km200.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle; position: relative; z-index: -1">
+<!--                 <img src="./figures/results/ids_km200_waveform.example.png" style="height: 6em; vertical-align: middle"> -->
+
+                <p><em style="color: darkgrey; font-size: smaller;">30 stations, 0-200 km epicentral distance</em></p>
+            </section>
+
+            <section data-auto-animate>
+                <h6>Iterative Deconvolution and Stacking - IDS</h6>
+
+                <img src="./figures/results/ids_km100.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6">
+                <img src="./figures/results/ids_km200.png" style="height: 7.5em; margin-right: -0.4em; vertical-align: middle; opacity: 0.6; position: relative; z-index: -1">
+                <img src="./figures/results/ids_km300.png" style="height: 7.5em; margin-right: 0em; vertical-align: middle; position: relative; z-index: -2">
+<!--                 <img src="./figures/results/ids_km300_waveform.example.png" style="height: 6em; vertical-align: middle">
+ -->
+                <p><em style="color: darkgrey; font-size: smaller;">30 stations, 0-300 km epicentral distance</em></p>
+            </section>
+
+
+            <section data-auto-animate>
+                <h6>Iterative Deconvolution and Stacking - IDS</h6>
+
+                <img src="./figures/results/ids_km300.png" style="height: 10em; margin-right: 0.5em; vertical-align: middle">
+                <img src="./figures/resources/pizzi_fig3a.png" style="height: 10em; vertical-align: middle">
+
+                <p style="text-align: right;"><em style="color: darkgrey; font-size: x-large;">Pizzi et al., 2017  </em></p>
+
+            </section>
+
+
+<!-- CONFIGURATION -->
+            <section>
+                <h6>Configuration - General</h6>
+
+                <pre><code class="language-yaml" data-trim data-noescape data-line-numbers="1|2-6|7-11|12-16|17">
+--- !ewrica.si.demonstrator.DemonstratorConfig
+magnitude_groups:
+- !ewrica.si.demonstrator.MagnitudeGroup
+  magmin: 6.0
+  magmax: 9.0
+  ..
+sampling_groups:
+- !ewrica.si.demonstrator.SamplingGroup
+  sampling_phases:
+  - !ewrica.si.demonstrator.InjectionSamplingPhase
+  ..
+engine_config: !ewrica.si.demonstrator.EngineConfig
+  store_dirs:
+  - '/home/malde/src/gf_stores'
+  - '/home/malde/src/gf_ids'
+  ..
+create_report: true
+                </code></pre>
+            </section>
+
+
+            <section>
+                <h6>Outlook</h6>
+
+                <div style="text-align: left;">
+                    <ul>
+                        <li>Include PDFs of initial solution in DC Source runs</li>
+                        <li>Include PDFs of Priors in initial DC Source runs</li>
+                        <li>Enhance location estimate</li>
+                    </ul>
+
+                </div>
+            </section>
+
+            <section>
+                <h6>Questions</h6>
+
+                <div style="text-align: left;">
+                    <ul>
+                        <li>When do you consider a model as "good"?</li>
+                        <li>How to exclude corrupted records?</li>
+                        <li>How much do we trust the prior?</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h3>Grazie for your attention.</h3>
+            </section>
+
+
+<!-- APPENDIX -->
+            <section>
+                <h3>Appendix</h3>
+            </section>
+
+<!-- APPENDIX STATION COVERAGE -->
+            <section>
+                <h6>Station coverage</h6>
+                    <div class="r-stack">
+                      <img class="fragment" src="./figures/coverage/n_stations_1.0degrees.png" style="height: 14em">
+                      <img class="fragment" src="./figures/coverage/n_stations_2.0degrees.png" style="height: 14em">
+                      <img class="fragment" src="./figures/coverage/n_stations_3.0degrees.png" style="height: 14em">
+                      <img class="fragment" src="./figures/coverage/n_stations_4.0degrees.png" style="height: 14em">
+                      <img class="fragment" src="./figures/coverage/n_stations_5.0degrees.png" style="height: 14em">
+                    </div>
+            </section>
+
+
+<!-- APPENDIX WAVEFORM FITS EXAMPLE -->
+            <section>
+                <h6>Waveform fits - Point Source</h6>
+                <img src="./figures/results/mt_km100_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/mt_km200_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/mt_km300_waveform.example.png" style="height: 4em">
+            </section>
+
+            <section>
+                <h6>Waveform fits - Rectangular Source</h6>
+                <img src="./figures/results/rs_km100_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/rs_km200_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/rs_km300_waveform.example.png" style="height: 4em">
+            </section>
+
+            <section>
+                <h6>Waveform fits - Pseudo Dynamic Rupture</h6>
+                <img src="./figures/results/pdr_km100_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/pdr_km200_waveform.example.png" style="height: 4em">
+                <img src="./figures/results/pdr_km300_waveform.example.png" style="height: 4em">
+            </section>
+
+            <section>
+                <h6>Waveform fits - IDS</h6>
+                <img src="./figures/results/ids_km100_waveform.example.png" style="height: 5em">
+                <img src="./figures/results/ids_km200_waveform.example.png" style="height: 5em">
+                <img src="./figures/results/ids_km300_waveform.example.png" style="height: 5em">
+            </section>
+
+
+<!-- APPENDIX CONFIGURATION -->
+            <section>
+                <h6>Configuration - Magnitude Groups</h6>
+
+                <pre><code class="language-yaml" data-trim data-noescape data-line-numbers="1-3|4-9|10-15|16-30|31|32-34">
+- !ewrica.si.demonstrator.MagnitudeGroup
+  magmin: 6.0
+  magmax: 9.0
+  tmin: '{stored:begin}'
+  tmax: '{vel_surface:2.0}'
+  tfade: 30.
+  fmin: 0.01
+  fmax: 0.03
+  fmax_extended: 0.05
+  distance_nearfield:
+  - 0.0
+  - 100000
+  distance_farfield:
+  - 10000
+  - 300000
+  ranges:
+    depth: !pf.Range
+      start: 1000.0
+      stop: 35000.0
+    time: !pf.Range
+      start: -20.0
+      stop: 20.0
+      relative: 'add'
+    duration: !pf.Range
+      start: 5.
+      stop: 40.
+      step: 1.
+    lateral: !pf.Range
+      start: -25e3
+      stop: 25e3
+  apply_for: ['mt', 'rs', 'pdr']
+  channels:
+  - 'Z'
+  - 'R'
+                </code></pre>
+            </section>
+
+            <section>
+                <h6>Configuration - Sampling Groups</h6>
+
+                <pre><code class="language-yaml" data-trim data-noescape data-line-numbers="1-2|3-15|16-17|18-19">               
+- !ewrica.si.demonstrator.SamplingGroup
+  sampling_phases:
+  - !ewrica.si.demonstrator.InjectionSamplingPhase
+    config: !ewrica.si.invert.SourceInjectionConfig
+      time_reference: 'centroid'
+      nucleation_x: [0.]
+      nucleation_y: [0.]
+      tractions: [0.5e6, 1e6, 2.5e6]
+      neamthm18_limit: !ewrica.si.invert.NEAMTHM18Limit
+        quantity: 'cumulative_probability_max'
+        target_value: 1.0
+      vmin: 1200.0
+      grid: [0.0]
+      depth_shifts: [0.0]
+      magnitude_shifts: [0.0]
+  - !ewrica.si.demonstrator.UniformSamplingPhase
+    iterations: 2000
+  apply_for: ['mt']
+  label: 'fast'
+                </code></pre>
+            </section>
+
+
+        </div>
+    </div>
+
+    <script src="reveal/dist/reveal.js"></script>
+    <script src="reveal/plugin/notes/notes.js"></script>
+    <script src="reveal/plugin/markdown/markdown.js"></script>
+    <script src="reveal/plugin/highlight/highlight.js"></script>
+    <script>
+        // More info about initialization & config:
+        // - https://revealjs.com/initialization/
+        // - https://revealjs.com/config/
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c',
+
+            // Learn about plugins: https://revealjs.com/plugins/
+            plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+        });
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+
+</html>
